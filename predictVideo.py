@@ -2,12 +2,11 @@ import numpy as np
 import os, sys
 import cv2
 # from skimage import io
-# from svm import *
-# from svmutil import *
 # from preProcess.py import faceDetectAndResizeImg, writeVector, writeFile
 
 
 faceDetect = cv2.CascadeClassifier("cascade.xml")
+# faceDetect = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
 
 # Detect face and resize image to (32x32) px.
 def faceDetectAndResizeImg(inputFolder, outFaceFolder):
@@ -115,15 +114,13 @@ def predictVideo(fileVideo):
     writeVector('TEMPP/outFaceVideo/', 'TEMPP/vectorOutFrame')
     # os.system('libsvm/svm-predict TEMPP/vectorOutFrame model testout > TEMPP/log')
     os.system('svm-predict TEMPP/vectorOutFrame model testout > TEMPP/log')
-    # m = svm_load_model('model')
-    # y = svm_load_model('TEMPP/vectorOutFrame')
-    # x = svm_load_model('testout')
-    # svm_predict(y, m, x)
     showResult('testout')
 
     # os.system('rm -rf TEMPP')
 
 
-# predictVideo('Boyfriend.mp4')
-# predictVideo('hello.mp4')
-predictVideo('wakawaka.mp4')
+
+if __name__ == "__main__":
+    # predictVideo('Boyfriend.mp4')
+    # predictVideo('hello.mp4')
+    predictVideo('wakawaka.mp4')
