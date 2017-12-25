@@ -1,12 +1,16 @@
 import numpy as np
 import os, sys
 import cv2
-from skimage import io
+# from skimage import io
+# from svm import *
+# from svmutil import *
 # from preProcess.py import faceDetectAndResizeImg, writeVector, writeFile
+
+
+faceDetect = cv2.CascadeClassifier("cascade.xml")
 
 # Detect face and resize image to (32x32) px.
 def faceDetectAndResizeImg(inputFolder, outFaceFolder):
-    faceDetect = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
     print('\n   STARTING DETECT AND RESIZE FACE...')
     listDirs = os.listdir(inputFolder)
@@ -16,7 +20,7 @@ def faceDetectAndResizeImg(inputFolder, outFaceFolder):
             if os.path.isfile(path + imgfile):
                 img = cv2.imread(path + imgfile)
                 # Detect Faces
-                faces = faceDetect.detectMultiScale(img)
+                faces = faceDetect.detectMultiScale(img, 1.3, 6)
 
                 # IF CAN'T DETECT FACE --> CONTINUE!
                 if (isinstance(faces, tuple)):
@@ -38,7 +42,7 @@ def faceDetectAndResizeImg(inputFolder, outFaceFolder):
                     cv2.imwrite(outFaceFolder + subDir + '/' +
                                 num + imgfile, croppedImg)
 
-    # print('---FACE DETECT COMPLETED!---\n')
+    print('---FACE DETECT COMPLETED!---\n')
 
 
 def writeVector(faceFolder, fileVector):
@@ -51,7 +55,11 @@ def writeVector(faceFolder, fileVector):
     for subDir in listDirs:
         path = faceFolder + subDir + '/'
         for imgfile in os.listdir(path):
-            img = io.imread(path + imgfile, as_grey=True)
+
+            # img = io.imread(path + imgfile, as_grey=True)
+            img = cv2.imread(path + imgfile)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
             # print(path + imgfile)
             label = listDirs.index(subDir)
             if(img.shape != (32, 32)):
@@ -70,7 +78,7 @@ def writeVector(faceFolder, fileVector):
     print('   WRITING VECTOR...')
     writeFile(Xdata, Ylabel, fileVector)
 
-    # print('---SAVE VECTOR COMPLETE!---\n')
+    print('---SAVE VECTOR COMPLETE!---\n')
 
 
 def writeFile(Xdata, Ylabel, filename):
@@ -78,7 +86,7 @@ def writeFile(Xdata, Ylabel, filename):
     for i in range(0, len(Ylabel)):
         fileWrite.write(str(Ylabel[i]) + ' ')
         for i2 in range(0, 1024):
-            fileWrite.write(str(i2) + ':' + str(Xdata[i][i2]) + ' ')
+            fileWrite.write(str(i2) + ':' + str(Xdata[i][i2] / 255.0) + ' ')
 
         fileWrite.write('\n')
     fileWrite.close()
@@ -102,15 +110,20 @@ def predictVideo(fileVideo):
     if not os.path.exists('TEMPP/outFrame/img'):
         os.makedirs('TEMPP/outFrame/img')
     os.system(command)
-
+    #
     faceDetectAndResizeImg('TEMPP/outFrame/', 'TEMPP/outFaceVideo/')
     writeVector('TEMPP/outFaceVideo/', 'TEMPP/vectorOutFrame')
-    os.system('libsvm/svm-predict TEMPP/vectorOutFrame model testout > TEMPP/log')
+    # os.system('libsvm/svm-predict TEMPP/vectorOutFrame model testout > TEMPP/log')
+    os.system('svm-predict TEMPP/vectorOutFrame model testout > TEMPP/log')
+    # m = svm_load_model('model')
+    # y = svm_load_model('TEMPP/vectorOutFrame')
+    # x = svm_load_model('testout')
+    # svm_predict(y, m, x)
     showResult('testout')
 
-    os.system('rm -rf TEMPP')
+    # os.system('rm -rf TEMPP')
 
 
 # predictVideo('Boyfriend.mp4')
 # predictVideo('hello.mp4')
-# predictVideo('wakawaka.mp4')
+predictVideo('wakawaka.mp4')

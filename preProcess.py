@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import cv2
-from skimage import io
+# from skimage import io
 
 # rename data to numbering type, ex: 1.jpg, 2.jpg,...
 def renameData(inFolder, outFolder):
@@ -69,7 +69,11 @@ def writeVector(faceFolder, fileVector):
     for subDir in listDirs:
         path = faceFolder + subDir + '/'
         for imgfile in os.listdir(path):
-            img = io.imread(path + imgfile, as_grey=True)
+
+            # img = io.imread(path + imgfile, as_grey=True)
+            img = cv2.imread(path + imgfile)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
             # print(path + imgfile)
             label = listDirs.index(subDir)
             if(img.shape != (32, 32)):
